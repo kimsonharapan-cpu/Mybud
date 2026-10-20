@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hangout — friends make life better</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --blue:#3478F6;
+  --green:#35C98A;
+  --red:#FF5C70;
+  --yellow:#FFC857;
+  --purple:#9B72F2;
+  --pink:#F278C8;
+  --cyan:#38C6D9;
+  --orange:#FF9852;
+  --bg:#F4F6FA;
+  --text:#292D3E;
+  --border:#E1E5ED;
+  --muted:#777D8C;
+  --shadow:0 2px 5px rgba(35,45,75,.07);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
+
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+header{
+  background:white;
+  border-bottom:4px solid var(--blue);
+  box-shadow:var(--shadow);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+
+.topbar{
+  max-width:1100px;
+  margin:auto;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  position:relative;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+}
+
+.logo{
+  width:47px;
+  height:38px;
+  background:#3478F6;
+  border:2px solid #2865D8;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  position:relative;
+}
+
+.logo:after{
+  content:"";
+  position:absolute;
+  bottom:-7px;
+  left:8px;
+  width:13px;
+  height:12px;
+  background:#3478F6;
+  transform:skew(-28deg);
+}
+
+.person{
+  position:relative;
+  z-index:1;
+  width:14px;
+  height:13px;
+  margin-top:9px;
+  border-radius:8px 8px 2px 2px;
+}
+
+.person:before{
+  content:"";
+  position:absolute;
+  top:-11px;
+  left:2px;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:inherit;
+}
+
+.red,.green{background:#fff}
+
+.brandname{
+  font-size:29px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.my{color:#3478F6}
+.b{color:#FF5C70}
+.u{color:#FFC857}
+.d{color:#35C98A}
+
+.tagline{
+  font-size:11px;
+  font-weight:bold;
+  color:#555;
+}
+
+nav{
+  display:flex;
+  overflow-x:auto;
+  max-width:1100px;
+  margin:auto;
+  padding:0 10px;
+}
+
+.navbtn{
+  flex:1;
+  text-align:center;
+  background:none;
+  border:0;
+  padding:13px 15px;
+  border-bottom:3px solid transparent;
+  white-space:nowrap;
+  font-weight:bold;
+  color:var(--text);
+}
+
+/* Each navigation tab has its own active color. */
+.navbtn.active[data-page="home"]{
+  color:var(--blue);
+  border-bottom-color:var(--blue);
+}
+
+.navbtn.active[data-page="groups"]{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
+
+.navbtn.active[data-page="make"]{
+  color:#C58B00;
+  border-bottom-color:var(--yellow);
+}
+
+.navbtn.active[data-page="search"]{
+  color:var(--green);
+  border-bottom-color:var(--green);
+}
+
+.container{
+  max-width:1100px;
+  margin:20px auto;
+  padding:0 14px;
+}
+
+.panel{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:19px;
+  margin-bottom:16px;
+}
+
+.title{
+  font-size:24px;
+  margin:0 0 15px;
+}
+
+.field{
+  display:block;
+  width:100%;
+  padding:12px;
+  margin:7px 0 14px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  background:white;
+  transition:box-shadow .2s,border-color .2s;
+}
+
+.field:focus{
+  outline:none;
+  border:2px solid var(--blue);
+  box-shadow:0 0 5px #3478F633;
+}
+
+textarea.field{
+  min-height:85px;
+  resize:vertical;
+}
+
+.btn{
+  padding:11px 15px;
+  border:0;
+  border-radius:5px;
+  background:#e8e8e8;
+  font-weight:bold;
+}
+
+.btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.blue{background:var(--blue);color:white}
+.greenbtn{background:var(--green);color:white}
+.redbtn{background:var(--red);color:white}
+.yellow{background:var(--yellow);color:#333}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
+.spread{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(235px,1fr));
+  gap:14px;
+}
+
+.card{
+  background:white;
+  border:1px solid #ddd;
+  border-radius:7px;
+  overflow:hidden;
+}
+
+.cardbar{height:9px}
+
+.cardbody{padding:15px}
+
+.card h3{margin:8px 0}
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:4px;
+  background:#e9f2ff;
+  color:#0755b4;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.badge.private{
+  background:#fff0d1;
+  color:#805500;
+}
+
+.notice,.error,.success{
+  padding:12px;
+  margin:12px 0;
+  overflow-wrap:anywhere;
+  border-radius:4px;
+}
+
+.notice{
+  background:#eaf4ff;
+  border-left:4px solid var(--blue);
+}
+
+.error{
+  background:#fff0f0;
+  border-left:4px solid var(--red);
+  color:#a70000;
+}
+
+.success{
+  background:#edfff0;
+  border-left:4px solid var(--green);
+  color:#18752a;
+}
+
+.auth{
+  max-width:440px;
+  margin:30px auto;
+  padding:0 14px;
+}
+
+.authlogo{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.authlogo .logo{
+  width:70px;
+  height:58px;
+  margin:0 auto 12px;
+}
+
+.authlogo .brandname{font-size:43px}
+.authlogo .tagline{font-size:14px}
+
+.linkbtn{
+  border:0;
+  background:none;
+  color:var(--blue);
+  font-weight:bold;
+}
+
+.avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:bold;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.chatbox{
+  height:320px;
+  overflow:auto;
+  background:#f7f7f7;
+  border:1px solid #ddd;
+  padding:10px;
+  margin-bottom:12px;
+}
+
+.message{
+  background:white;
+  border:1px solid #ddd;
+  padding:10px;
+  margin-bottom:9px;
+  border-radius:5px;
+}
+
+.message.mine{border-left:4px solid var(--green)}
+
+.message p{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+footer{
+  margin-top:35px;
+  padding:25px;
+  text-align:center;
+  color:#777;
+  background:white;
+  border-top:1px solid #ddd;
+  font-size:12px;
+}
+
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-shrink:0;
+}
+
+.menu-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+
+.settings-button{
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #dfe7f2;
+  border-radius:12px;
+  background:#f0fbf6;
+  color:#248b60;
+  font-size:27px;
+  font-weight:700;
+  line-height:1;
+  padding:0;
+}
+
+.settings-button:hover{background:#e9f8ec}
+
+.account-button{
+  min-width:42px;
+  height:42px;
+  max-width:160px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:3px 10px 3px 4px;
+  border:1px solid #dfe7f2;
+  border-radius:24px;
+  background:#fff;
+  color:#26352a;
+}
+
+.account-initial{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:900;
+  flex-shrink:0;
+  background:#35C98A;
+  overflow:hidden;
+}
+
+.account-name{
+  display:block;
+  max-width:88px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:13px;
+}
+
+.account-photo{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+}
+
+.account-menu{
+  position:absolute;
+  top:calc(100% + 9px);
+  right:0;
+  min-width:175px;
+  width:min(220px,calc(100vw - 24px));
+  padding:6px;
+  background:#fff;
+  border:1px solid #dfe7f2;
+  border-radius:12px;
+  box-shadow:0 12px 30px #10251520;
+  z-index:30;
+}
+
+.account-menu button{
+  width:100%;
+  display:block;
+  text-align:left;
+  padding:12px;
+  border:0;
+  background:#fff;
+  border-radius:8px;
+  color:#26352a;
+  font-size:14px;
+}
+
+.account-menu button:hover{background:#eff8f0}
+
+.account-menu .logout-menu{
+  color:#d93030;
+  border-top:1px solid #eee;
+  margin-top:4px;
+}
+
+.empty-state{
+  background:#fff;
+  border:1px dashed #cfd7df;
+  border-radius:7px;
+  padding:22px;
+  text-align:center;
+  color:#777;
+  grid-column:1/-1;
+}
+
+.creator-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:13px 0 15px;
+  padding-top:12px;
+  border-top:1px solid #edf0ed;
+  min-width:0;
+}
+
+.creator-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:800;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.creator-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.creator-meta{
+  min-width:0;
+  line-height:1.35;
+}
+
+.creator-meta strong{
+  display:block;
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+
+.creator-meta small{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.member-count{
+  font-weight:bold;
+  color:var(--blue);
+}
+
+.member-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+
+.member-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#f4f6fa;
+  border:1px solid #e1e5ed;
+  padding:6px 9px;
+  border-radius:20px;
+  font-size:12px;
+}
+
+.online-indicator,.offline-indicator{
+  width:8px;
+  height:8px;
+  display:inline-block;
+  border-radius:50%;
+}
+
+.online-indicator{background:#35C98A}
+.offline-indicator{background:#aab0ba}
+
+@media(max-width:420px){
+  .account-name{display:none}
+  .account-button{padding-right:4px;min-width:42px}
+  .header-actions{gap:7px}
+  .settings-button{width:40px;height:40px}
+}
+
+@media(max-width:550px){
+  .brandname{font-size:25px}
+  .logo{width:40px;height:34px}
+  .grid{grid-template-columns:1fr}
+  .panel{padding:14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .field:focus{animation:none}
+}
+
+body,body *{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+
+input,textarea,[contenteditable="true"],select{
+  -webkit-user-select:text;
+  user-select:text;
+  -webkit-touch-callout:default;
+}
+</style>
+</head>
+
+<body>
+
+<header id="header" class="hidden">
+  <div class="topbar">
+    <div class="brand" onclick="page('home')">
+      <div class="logo">
+        <span class="person red"></span>
+        <span class="person green"></span>
+      </div>
+      <div>
+        <div class="brandname"><span class="my">My</span><span class="b">b</span><span class="u">u</span><span class="d">d</span></div>
+        <div class="tagline">friends make life better</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="accountButton" class="account-button" onclick="page('profile')" aria-label="Open my account" title="My account">
+        <span id="accountInitial" class="account-initial">M</span>
+        <span id="accountName" class="account-name">Account</span>
+      </button>
+
+      <div class="menu-wrap">
+        <button class="settings-button" id="menuButton" onclick="toggleAccountMenu()" aria-label="Open settings menu" title="Settings">≡</button>
+
+        <div id="accountMenu" class="account-menu hidden">
+          <button onclick="page('profile');toggleAccountMenu(true)">My Profile</button>
+          <button onclick="page('settings');toggleAccountMenu(true)">Settings</button>
+          <button class="logout-menu" onclick="logout()">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <button class="navbtn active" data-page="home" onclick="page('home')">Home</button>
+    <button class="navbtn" data-page="groups" onclick="page('groups')">Groups</button>
+    <button class="navbtn" data-page="make" onclick="page('make')">Make</button>
+    <button class="navbtn" data-page="search" onclick="page('search')">⌕ Search</button>
+  </nav>
+</header>
+
+<section id="auth" class="auth">
+  <div class="authlogo">
+    <div class="logo">
+      <span class="person red"></span>
+      <span class="person green"></span>
+    </div>
+
+    <div class="brandname"><span class="my">My</span><span class="b">b</span><span class="u">u</span><span class="d">d</span></div>
+    <div class="tagline">friends make life better</div>
+    <p class="muted">Find your people. Build your community.</p>
+  </div>
+
+  <div class="panel">
+    <h2 id="authTitle">Welcome to Hangout!</h2>
+    <div id="authMessage"></div>
+
+    <form id="authForm">
+      <label>Email</label>
+      <input class="field" id="email" type="email" required placeholder="you@example.com">
+
+      <label>Password</label>
+      <input class="field" id="password" type="password" minlength="6" required placeholder="At least 6 characters">
+
+      <div id="nameWrap" class="hidden">
+        <label>Display name</label>
+        <input class="field" id="displayName" maxlength="40" placeholder="Your name">
+      </div>
+
+      <button id="authSubmit" class="btn blue" style="width:100%">Sign In</button>
+    </form>
+
+    <p style="text-align:center">
+      <span id="switchText">New to hangout?</span>
+      <button class="linkbtn" onclick="toggleAuth()" id="switchButton">Create account</button>
+    </p>
+  </div>
+</section>
+
+<main id="main" class="container hidden">
+
+  <!-- HOME: public groups appear here -->
+  <section id="page-home" class="page">
+    <div id="homeGroups" class="grid"></div>
+  </section>
+
+  <section id="page-groups" class="page hidden">
+    <h1 class="title">Groups</h1>
+
+    <div class="row" style="margin-bottom:16px">
+      <button id="allGroupsTab" class="btn blue" onclick="groupsTab('all')">All Groups</button>
+      <button id="myGroupsTab" class="btn" onclick="groupsTab('mine')">My Groups</button>
+      <button id="friendsTab" class="btn" onclick="groupsTab('friends')">Friends</button>
+    </div>
+
+    <div id="groupsAllPanel">
+      <div id="groupsAllList" class="grid"></div>
+    </div>
+
+    <div id="groupsMinePanel" class="hidden">
+      <div id="myGroups" class="grid"></div>
+
+      <h2 class="title" style="margin-top:22px">Group Members & Online Status</h2>
+      <div id="myGroupStatuses" class="grid"></div>
+    </div>
+
+    <div id="friendsPanel" class="hidden">
+      <p class="muted">Search people and add them as friends.</p>
+      <input class="field" id="friendSearch" placeholder="Find friends by display name..." oninput="searchPeople()">
+      <div id="friendResults" class="grid"></div>
+
+      <h2 class="title" style="margin-top:22px">My Friends</h2>
+      <div id="myFriends" class="grid"></div>
+    </div>
+  </section>
+
+  <section id="page-search" class="page hidden">
+    <h1 class="title">Search</h1>
+    <p class="muted">Find a group to join.</p>
+
+    <input class="field" id="search" placeholder="Search groups..." oninput="renderGroups()">
+    <div id="searchResults" class="grid"></div>
+
+    <h2 class="title" style="margin-top:24px">People</h2>
+    <input class="field" id="peopleSearch" placeholder="Search people by display name..." oninput="searchPeople(true)">
+    <div id="peopleResults" class="grid"></div>
+  </section>
+
+  <section id="page-make" class="page hidden">
+    <div class="panel">
+      <h1 class="title">Make a Group</h1>
+
+      <form id="createForm">
+        <label>Group name</label>
+        <input class="field" id="groupName" required maxlength="70" placeholder="Give your group a name">
+
+        <label>Description</label>
+        <textarea class="field" id="groupDescription" maxlength="500" placeholder="What's your group about?"></textarea>
+
+        <label>Privacy</label>
+        <select class="field" id="privacy">
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+
+        <label>Maximum Members</label>
+        <select class="field" id="maxMembers">
+          <option value="5">5 people</option>
+          <option value="10">10 people</option>
+          <option value="25">25 people</option>
+          <option value="30">30 people</option>
+        </select>
+
+        <p class="muted small">The creator counts as a member. A full group cannot accept new members.</p>
+        <div id="createMessage"></div>
+        <button class="btn greenbtn">Create Group</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="page-group" class="page hidden">
+    <button class="btn" onclick="page('groups')">← Back</button>
+    <div id="groupDetails" class="panel" style="margin-top:15px"></div>
+
+    <div id="chatPanel" class="panel hidden">
+      <h2>Group Chat 💬</h2>
+      <div id="chatMessages" class="chatbox"></div>
+
+      <form id="chatForm" class="row">
+        <input class="field" id="chatInput" required maxlength="2000" placeholder="Write a message..." style="flex:1">
+        <button class="btn blue">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="page-profile" class="page hidden">
+    <h1 class="title">My Profile</h1>
+
+    <div class="panel">
+      <div class="row">
+        <div id="avatar" class="avatar"></div>
+        <div>
+          <h2 id="profileHeading"></h2>
+          <div id="profileEmail" class="muted small"></div>
+        </div>
+      </div>
+
+      <form id="profileForm" style="margin-top:20px">
+        <label>Display name</label>
+        <input class="field" id="editName" required maxlength="40">
+
+        <label>About me</label>
+        <textarea class="field" id="bio" maxlength="300"></textarea>
+
+        <label>Profile photo</label>
+        <input class="field" id="photo" type="file" accept="image/png,image/jpeg,image/webp">
+
+        <div id="profileMessage"></div>
+        <button class="btn blue">Save Profile</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Sound settings removed -->
+  <section id="page-settings" class="page hidden">
+    <h1 class="title">Settings</h1>
+
+    <div class="panel">
+      <h3>Supabase Connection</h3>
+      <p class="small muted">Hang out uses your existing Supabase project for accounts, groups, and chat.</p>
+      <button class="btn" onclick="showConfigInstructions()">How to change configuration</button>
+      <div id="configHelp"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Account</h3>
+      <p id="settingsEmail" class="muted small"></p>
+      <button class="btn redbtn" onclick="logout()">Log Out</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong style="font-size:18px"><span class="my">My</span><span class="b">b</span><span class="u">u</span><span class="d">d</span></strong><br>
+  friends make life better · Hangout Beta
+</footer>
+
+<script>
+/* Supabase configuration */
+const SUPABASE_URL = "https://xfahjteotdnolxblgrir.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_9srHrfjfbWIV-U5n-9t5rw_sKOLpUBz";
+
+let db=null;
+let user=null;
+let profile=null;
+let groups=[];
+let joined=new Set();
+let currentGroup=null;
+let chatChannel=null;
+let registering=false;
+let groupCreators={};
+let groupMemberCounts={};
+let presenceChannel=null;
+let onlineUsers=new Set();
+let presenceRefreshTimer=null;
+
+const $=id=>document.getElementById(id);
+
+const colors=[
+  "#3478F6","#35C98A","#FF5C70","#FFC857",
+  "#9B72F2","#F278C8","#38C6D9","#FF9852"
+];
+
+function esc(s){
+  return String(s??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+function colorFor(s){
+  let n=0;
+  for(const c of String(s||"Hangout")){
+    n=(n*31+c.charCodeAt(0))>>>0;
+  }
+  return colors[n%colors.length];
+}
+
+function initials(s){
+  return String(s||"M").trim()
+    .split(/\s+/).slice(0,2)
+    .map(x=>x[0]||"").join("").toUpperCase();
+}
+
+function message(id,text,type="notice"){
+  const target=$(id);
+  if(target){
+    target.innerHTML=text?`<div class="${type}">${esc(text)}</div>`:"";
+  }
+}
+
+function configureSupabase(){
+  if(!window.supabase){
+    message("authMessage","Supabase library could not load. Check your internet connection.","error");
+    return false;
+  }
+
+  if(
+    !SUPABASE_URL.startsWith("https://")||
+    !SUPABASE_PUBLISHABLE_KEY||
+    SUPABASE_URL.includes("PASTE_")||
+    SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")
+  ){
+    message("authMessage","Check your Supabase URL and publishable key.","error");
+    return false;
+  }
+
+  try{
+    db=window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+    return true;
+  }catch(e){
+    message("authMessage","Supabase configuration is invalid: "+e.message,"error");
+    return false;
+  }
+}
+
+/* LOGIN AND REGISTER */
+function toggleAuth(){
+  registering=!registering;
+
+  $("nameWrap").classList.toggle("hidden",!registering);
+  $("displayName").required=registering;
+
+  $("authTitle").textContent=registering
+    ?"Create your Hangout account"
+    :"Welcome to Hangout!";
+
+  $("authSubmit").textContent=registering
+    ?"Create Account"
+    :"Sign In";
+
+  $("switchText").textContent=registering
+    ?"Already have an account?"
+    :"New to Hangout?";
+
+  $("switchButton").textContent=registering
+    ?"Sign in"
+    :"Create account";
+
+  message("authMessage","");
+}
+
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  if(!db&&!configureSupabase())return;
+
+  const email=$("email").value.trim();
+  const password=$("password").value;
+
+  $("authSubmit").disabled=true;
+
+  try{
+    if(registering){
+      const {data,error}=await db.auth.signUp({
+        email,
+        password,
+        options:{
+          data:{
+            display_name:$("displayName").value.trim()
+          }
+        }
+      });
+
+      if(error)throw error;
+
+      if(data.session){
+        user=data.user;
+        await enterApp();
+      }else{
+        message(
+          "authMessage",
+          "Account created. Check your email if confirmation is required.",
+          "success"
+        );
+      }
+    }else{
+      const {data,error}=await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error)throw error;
+
+      user=data.user;
+      await enterApp();
+    }
+  }catch(err){
+    message("authMessage",err.message,"error");
+  }finally{
+    $("authSubmit").disabled=false;
+  }
+});
+
+/* ENTER APP */
+async function enterApp(){
+  $("auth").classList.add("hidden");
+  $("header").classList.remove("hidden");
+  $("main").classList.remove("hidden");
+
+  try{
+    await loadProfile();
+    await loadMemberships();
+    await loadGroups();
+
+    page("home");
+
+    await startPresence();
+    await renderAllMemberStatuses();
+  }catch(e){
+    alert(
+      "Could not load your online data. Check your Supabase tables and RLS policies.\n"+
+      e.message
+    );
+  }
+}
+
+/* PROFILE */
+async function loadProfile(){
+  const {data,error}=await db.from("profiles")
+    .select("*")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error)throw error;
+
+  if(data){
+    profile=data;
+  }else{
+    const {data:newProfile,error:insertError}=await db.from("profiles")
+      .insert({
+        id:user.id,
+        display_name:user.user_metadata?.display_name||user.email.split("@")[0],
+        bio:"",
+        avatar_url:null
+      })
+      .select()
+      .single();
+
+    if(insertError)throw insertError;
+
+    profile=newProfile;
+  }
+
+  renderProfile();
+}
+
+function renderProfile(){
+  if(!profile)return;
+
+  const display=profile.display_name||"Hangout User";
+
+  $("profileHeading").textContent=display;
+  $("profileEmail").textContent=user.email||"";
+  $("settingsEmail").textContent=user.email||"";
+  $("editName").value=display;
+  $("bio").value=profile.bio||"";
+  $("avatar").style.background=colorFor(user.id);
+
+  $("avatar").innerHTML=profile.avatar_url
+    ?`<img src="${esc(profile.avatar_url)}" alt="Profile photo">`
+    :esc(initials(display));
+
+  const initial=$("accountInitial");
+  const name=$("accountName");
+
+  if(initial){
+    initial.style.background=colorFor(user.id);
+
+    initial.innerHTML=profile.avatar_url
+      ?`<img class="account-photo" src="${esc(profile.avatar_url)}" alt="">`
+      :esc(initials(display));
+  }
+
+  if(name)name.textContent=display;
+}
+
+/* MEMBERSHIPS */
+async function loadMemberships(){
+  const {data,error}=await db.from("group_members")
+    .select("group_id")
+    .eq("user_id",user.id);
+
+  if(error)throw error;
+
+  joined=new Set((data||[]).map(x=>x.group_id));
+}
+
+/* LOAD GROUPS FROM SUPABASE */
+async function loadGroups(){
+  const {data,error}=await db.from("groups")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error)throw error;
+
+  groups=data||[];
+  groupCreators={};
+  groupMemberCounts={};
+
+  const creatorIds=[
+    ...new Set(groups.map(g=>g.created_by).filter(Boolean))
+  ];
+
+  if(creatorIds.length){
+    const result=await db.from("profiles")
+      .select("id,display_name,avatar_url")
+      .in("id",creatorIds);
+
+    if(!result.error){
+      (result.data||[]).forEach(p=>{
+        groupCreators[p.id]=p;
+      });
+    }
+  }
+
+  if(groups.length){
+    const result=await db.from("group_members")
+      .select("group_id");
+
+    if(!result.error){
+      (result.data||[]).forEach(m=>{
+        groupMemberCounts[m.group_id]=
+          (groupMemberCounts[m.group_id]||0)+1;
+      });
+    }else{
+      console.warn("Could not load member counts",result.error);
+    }
+  }
+
+  renderGroups();
+  renderAllGroups();
+  renderHomeGroups();
+  renderMyGroups();
+}
+
+function isPrivate(g){
+  return g.privacy==="private";
+}
+
+function gName(g){
+  return g.name||g.title||"Untitled Group";
+}
+
+function maxMembers(g){
+  const n=Number(g.max_members);
+  return Number.isFinite(n)&&n>0?n:5;
+}
+
+function groupFull(g){
+  return (groupMemberCounts[g.id]||0)>=maxMembers(g);
+}
+
+/* GROUP CARD */
+function groupCard(g){
+  const creator=groupCreators[g.created_by]||{};
+  const creatorName=creator.display_name||"Hangout Member";
+  const count=groupMemberCounts[g.id]||0;
+  const privateGroup=isPrivate(g);
+  const full=groupFull(g);
+  const joinedGroup=joined.has(g.id);
+
+  const avatar=creator.avatar_url
+    ?`<img src="${esc(creator.avatar_url)}" alt="">`
+    :esc(initials(creatorName));
+
+  return `
+    <article class="card">
+      <div class="cardbar" style="background:${colorFor(g.id)}"></div>
+
+      <div class="cardbody">
+        <div class="row spread">
+          <span class="badge ${privateGroup?"private":""}">
+            ${privateGroup?"PRIVATE":"PUBLIC"}
+          </span>
+
+          ${full?'<span class="badge private">FULL</span>':""}
+        </div>
+
+        <h3>${esc(gName(g))}</h3>
+
+        <p class="muted small">
+          ${esc(g.description||"A place to connect with people.")}
+        </p>
+
+        <div class="creator-row">
+          <div class="creator-avatar" style="background:${colorFor(g.created_by)}">
+            ${avatar}
+          </div>
+
+          <div class="creator-meta">
+            <strong>${esc(creatorName)}</strong>
+            <small>Group creator</small>
+          </div>
+        </div>
+
+        <div class="row spread small">
+          <span class="member-count">
+            ${count}/${maxMembers(g)} Members
+          </span>
+        </div>
+
+        <div class="row" style="margin-top:14px">
+          <button
+            class="btn blue"
+            style="flex:1"
+            onclick="openGroup('${esc(g.id)}')"
+          >
+            View Group
+          </button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function emptyMessage(text){
+  return `<div class="empty-state">${esc(text)}</div>`;
+}
+
+/* SEARCH GROUPS */
+function renderGroups(){
+  const target=$("searchResults");
+  if(!target)return;
+
+  const query=($("search")?.value||"").trim().toLowerCase();
+
+  const results=groups.filter(g=>{
+    const text=[
+      gName(g),
+      g.description||""
+    ].join(" ").toLowerCase();
+
+    return text.includes(query);
+  });
+
+  target.innerHTML=results.length
+    ?results.map(groupCard).join("")
+    :emptyMessage(query?"No matching groups found.":"No groups available yet.");
+}
+
+/* ALL GROUPS */
+function renderAllGroups(){
+  const target=$("groupsAllList");
+  if(!target)return;
+
+  target.innerHTML=groups.length
+    ?groups.map(groupCard).join("")
+    :emptyMessage("No groups available yet. Be the first to make one!");
+}
+
+/* HOME: SHOW PUBLIC GROUPS */
+function renderHomeGroups(){
+  const target=$("homeGroups");
+  if(!target)return;
+
+  const publicGroups=groups.filter(g=>!isPrivate(g));
+
+  target.innerHTML=publicGroups.length
+    ?publicGroups.map(groupCard).join("")
+    :emptyMessage("No public groups yet. Make a public group and it will appear here!");
+}
+
+/* MY GROUPS */
+function renderMyGroups(){
+  const target=$("myGroups");
+  if(!target)return;
+
+  const myGroups=groups.filter(g=>joined.has(g.id));
+
+  target.innerHTML=myGroups.length
+    ?myGroups.map(groupCard).join("")
+    :emptyMessage("You haven't joined any groups yet.");
+}
+
+/* GROUP TABS */
+function groupsTab(tab){
+  const all=tab==="all";
+  const mine=tab==="mine";
+  const friends=tab==="friends";
+
+  $("groupsAllPanel").classList.toggle("hidden",!all);
+  $("groupsMinePanel").classList.toggle("hidden",!mine);
+  $("friendsPanel").classList.toggle("hidden",!friends);
+
+  $("allGroupsTab").className="btn "+(all?"blue":"");
+  $("myGroupsTab").className="btn "+(mine?"blue":"");
+  $("friendsTab").className="btn "+(friends?"blue":"");
+
+  renderAllGroups();
+  renderMyGroups();
+  renderAllMemberStatuses();
+  clearFriendViews();
+}
+
+/* ACCOUNT MENU */
+function toggleAccountMenu(forceClose=false){
+  const menu=$("accountMenu");
+  if(!menu)return;
+
+  if(forceClose)menu.classList.add("hidden");
+  else menu.classList.toggle("hidden");
+}
+
+/* FRIEND SEARCH */
+async function searchPeople(fromSearchPage=false){
+  const target=$(fromSearchPage?"peopleResults":"friendResults");
+  if(target)target.innerHTML="";
+}
+
+function clearFriendViews(){
+  ["friendResults","myFriends","peopleResults"].forEach(id=>{
+    const target=$(id);
+    if(target)target.innerHTML="";
+  });
+}
+
+async function addFriend(friendId){
+  if(!friendId||friendId===user.id)return;
+
+  const [a,b]=[user.id,friendId].sort();
+
+  try{
+    const {error}=await db.from("friendships").upsert(
+      {user_a:a,user_b:b},
+      {onConflict:"user_a,user_b"}
+    );
+
+    if(error)throw error;
+
+    alert("Friend added!");
+    await loadMyFriends();
+  }catch(e){
+    alert(
+      "Could not add friend. Create the friendships table and its policies in Supabase first. "+
+      e.message
+    );
+  }
+}
+
+async function loadMyFriends(){
+  const target=$("myFriends");
+  if(target)target.innerHTML="";
+}
+
+/* NAVIGATION */
+function page(name){
+  if(name==="create")name="make";
+  if(name==="mygroups")name="groups";
+
+  document.querySelectorAll(".page").forEach(x=>{
+    x.classList.add("hidden");
+  });
+
+  $("page-"+name)?.classList.remove("hidden");
+
+  document.querySelectorAll(".navbtn").forEach(x=>{
+    x.classList.toggle("active",x.dataset.page===name);
+  });
+
+  if(name==="search"){
+    renderGroups();
+    searchPeople(true);
+  }
+
+  if(name==="groups")groupsTab("all");
+  if(name==="profile")renderProfile();
+
+  if(name==="home")renderHomeGroups();
+
+  toggleAccountMenu(true);
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* CREATE GROUP */
+$("createForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  if(!user||!db){
+    message("createMessage","Please sign in first.","error");
+    return;
+  }
+
+  const submit=e.submitter;
+  if(submit)submit.disabled=true;
+
+  message("createMessage","Creating group...");
+
+  try{
+    const {data,error}=await db.from("groups").insert({
+      name:$("groupName").value.trim(),
+      description:$("groupDescription").value.trim(),
+      privacy:$("privacy").value,
+      max_members:Number($("maxMembers").value),
+      created_by:user.id
+    }).select().single();
+
+    if(error)throw error;
+
+    const {error:memberError}=await db.from("group_members").insert({
+      group_id:data.id,
+      user_id:user.id
+    });
+
+    if(memberError){
+      throw new Error(
+        "Group was created, but adding its creator as a member failed: "+
+        memberError.message
+      );
+    }
+
+    joined.add(data.id);
+
+    $("createForm").reset();
+
+    await loadMemberships();
+    await loadGroups();
+
+    message("createMessage","Group created successfully!","success");
+
+    await openGroup(data.id);
+
+  }catch(err){
+    message("createMessage",err.message,"error");
+  }finally{
+    if(submit)submit.disabled=false;
+  }
+});
+
+/* JOIN GROUP */
+async function joinGroup(id){
+  const g=groups.find(x=>x.id===id);
+  if(!g)return;
+
+  if(joined.has(id)){
+    await openGroup(id);
+    return;
+  }
+
+  if(isPrivate(g)){
+    alert("This group is private. An invitation/access-request system must be configured before joining.");
+    return;
+  }
+
+  if(groupFull(g)){
+    alert("This group is full.");
+    return;
+  }
+
+  try{
+    const {error}=await db.rpc("join_group_with_capacity",{
+      p_group_id:id
+    });
+
+    if(error)throw error;
+
+    await loadMemberships();
+    await loadGroups();
+    await openGroup(id);
+    await renderAllMemberStatuses();
+
+  }catch(err){
+    alert("Could not join group: "+err.message);
+  }
+}
+
+/* LEAVE GROUP */
+async function leaveGroup(id){
+  const g=groups.find(x=>x.id===id);
+
+  if(g&&g.created_by===user.id){
+    alert("As the group creator, you can delete the group instead of leaving it.");
+    return;
+  }
+
+  if(!confirm("Leave this group?"))return;
+
+  try{
+    const {error}=await db.from("group_members").delete()
+      .eq("group_id",id)
+      .eq("user_id",user.id);
+
+    if(error)throw error;
+
+    await loadMemberships();
+    await loadGroups();
+    await renderAllMemberStatuses();
+
+    if(currentGroup?.id===id)page("groups");
+
+  }catch(err){
+    alert("Could not leave group: "+err.message);
+  }
+}
+
+/* DELETE GROUP */
+async function deleteGroup(id){
+  const g=groups.find(x=>x.id===id);
+  if(!g)return;
+
+  if(g.created_by!==user.id){
+    alert("Only the group creator can delete this group.");
+    return;
+  }
+
+  if(!confirm(
+    "Delete this group permanently? Its members and chat messages will also be removed. This cannot be undone."
+  ))return;
+
+  try{
+    if(chatChannel&&currentGroup?.id===id){
+      await db.removeChannel(chatChannel);
+      chatChannel=null;
+    }
+
+    const msgResult=await db.from("messages")
+      .delete()
+      .eq("group_id",id);
+
+    if(msgResult.error)throw msgResult.error;
+
+    const memberResult=await db.from("group_members")
+      .delete()
+      .eq("group_id",id);
+
+    if(memberResult.error)throw memberResult.error;
+
+    const {data,error}=await db.from("groups")
+      .delete()
+      .eq("id",id)
+      .eq("created_by",user.id)
+      .select("id");
+
+    if(error)throw error;
+
+    if(!data||!data.length){
+      throw new Error("Supabase denied deletion. Check the creator DELETE policy.");
+    }
+
+    joined.delete(id);
+    delete groupMemberCounts[id];
+
+    if(currentGroup?.id===id){
+      currentGroup=null;
+      $("chatPanel").classList.add("hidden");
+    }
+
+    await loadGroups();
+    await renderAllMemberStatuses();
+
+    page("groups");
+
+    alert("Group deleted successfully.");
+
+  }catch(err){
+    alert(
+      "Could not fully delete the group: "+err.message+
+      "\nCheck Supabase RLS policies for messages, group_members, and groups."
+    );
+  }
+}
+
+/* GROUP DETAILS AND CHAT */
+async function openGroup(id){
+  const g=groups.find(x=>x.id===id);
+  if(!g)return;
+
+  currentGroup=g;
+  page("group");
+
+  const count=groupMemberCounts[id]||0;
+  const owner=g.created_by===user.id;
+  const full=groupFull(g);
+
+  $("groupDetails").innerHTML=`
+    <h1 class="title">${esc(gName(g))}</h1>
+
+    <span class="badge ${isPrivate(g)?"private":""}">
+      ${isPrivate(g)?"PRIVATE":"PUBLIC"}
+    </span>
+
+    <p>${esc(g.description||"A place to connect with people.")}</p>
+
+    <div class="row small" style="margin:12px 0">
+      <strong style="color:var(--blue)">
+        👥 ${count}/${maxMembers(g)} Members
+      </strong>
+
+      ${full?'<span class="badge private">GROUP FULL</span>':""}
+    </div>
+
+    <div class="row">
+      ${
+        owner
+        ?`<button class="btn redbtn" onclick="deleteGroup('${esc(id)}')">Delete Group</button>`
+        :joined.has(id)
+          ?`<button class="btn redbtn" onclick="leaveGroup('${esc(id)}')">Leave Group</button>`
+          :full
+            ?'<button class="btn" disabled>Group Full</button>'
+            :`<button class="btn greenbtn" onclick="joinGroup('${esc(id)}')">Join Group</button>`
+      }
+    </div>
+
+    <div class="member-status" data-member-status="${esc(id)}"></div>
+  `;
+
+  if(!joined.has(id)){
+    $("chatPanel").classList.add("hidden");
+
+    if(chatChannel){
+      await db.removeChannel(chatChannel);
+      chatChannel=null;
+    }
+
+    await refreshMemberStatuses();
+    return;
+  }
+
+  $("chatPanel").classList.remove("hidden");
+
+  await loadMessages(id);
+  subscribeChat(id);
+  await refreshMemberStatuses();
+}
+
+/* LOAD CHAT MESSAGES */
+async function loadMessages(id){
+  const {data,error}=await db.from("messages")
+    .select("*")
+    .eq("group_id",id)
+    .order("created_at",{ascending:true})
+    .limit(100);
+
+  if(error){
+    $("chatMessages").textContent="Could not load messages: "+error.message;
+    return;
+  }
+
+  const ids=[...new Set((data||[]).map(m=>m.user_id))];
+  let names={};
+
+  if(ids.length){
+    const result=await db.from("profiles")
+      .select("id,display_name")
+      .in("id",ids);
+
+    (result.data||[]).forEach(p=>{
+      names[p.id]=p.display_name;
+    });
+  }
+
+  $("chatMessages").innerHTML=data?.length
+    ?data.map(m=>`
+      <div class="message ${m.user_id===user.id?"mine":""}">
+        <strong>${esc(names[m.user_id]||"Hangout Member")}</strong>
+        <p>${esc(m.content)}</p>
+        <small class="muted">
+          ${esc(m.created_at?new Date(m.created_at).toLocaleString():"")}
+        </small>
+      </div>
+    `).join("")
+    :'<p class="muted">No messages yet. Say hello!</p>';
+
+  $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
+}
+
+/* REALTIME CHAT */
+function subscribeChat(id){
+  if(chatChannel)db.removeChannel(chatChannel);
+
+  chatChannel=db.channel("Hangout-chat-"+id)
+    .on("postgres_changes",{
+      event:"INSERT",
+      schema:"public",
+      table:"messages",
+      filter:"group_id=eq."+id
+    },()=>{
+      if(currentGroup?.id===id)loadMessages(id);
+    })
+    .subscribe();
+}
+
+$("chatForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  const content=$("chatInput").value.trim();
+  if(!content||!currentGroup)return;
+
+  try{
+    const {error}=await db.from("messages").insert({
+      group_id:currentGroup.id,
+      user_id:user.id,
+      content
+    });
+
+    if(error)throw error;
+
+    $("chatInput").value="";
+    await loadMessages(currentGroup.id);
+
+  }catch(err){
+    alert("Could not send message: "+err.message);
+  }
+});
+
+/* EDIT PROFILE */
+$("profileForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  message("profileMessage","Saving profile...");
+
+  try{
+    let avatar_url=profile.avatar_url||null;
+    const photo=$("photo").files[0];
+
+    if(photo){
+      if(photo.size>5*1024*1024){
+        throw new Error("Photo must be smaller than 5 MB.");
+      }
+
+      const ext=(photo.name.split(".").pop()||"jpg").toLowerCase();
+      const path=user.id+"/avatar-"+Date.now()+"."+ext;
+
+      const {error}=await db.storage.from("avatars").upload(path,photo,{
+        upsert:true,
+        contentType:photo.type
+      });
+
+      if(error)throw error;
+
+      avatar_url=db.storage.from("avatars")
+        .getPublicUrl(path).data.publicUrl;
+    }
+
+    const {data,error}=await db.from("profiles").upsert({
+      id:user.id,
+      display_name:$("editName").value.trim(),
+      bio:$("bio").value.trim(),
+      avatar_url
+    }).select().single();
+
+    if(error)throw error;
+
+    profile=data;
+    renderProfile();
+    $("photo").value="";
+
+    message("profileMessage","Profile updated!","success");
+
+  }catch(err){
+    message("profileMessage",err.message,"error");
+  }
+});
+
+/* SUPABASE SETTINGS */
+function showConfigInstructions(){
+  $("configHelp").innerHTML=
+    '<div class="notice">Use your Supabase Project URL and publishable key only. Never use a secret/service_role key in this website. Group visibility depends on your Supabase RLS policies.</div>';
+}
+
+/* ONLINE PRESENCE */
+function stopPresence(){
+  if(presenceRefreshTimer){
+    clearInterval(presenceRefreshTimer);
+    presenceRefreshTimer=null;
+  }
+
+  if(presenceChannel&&db){
+    db.removeChannel(presenceChannel);
+  }
+
+  presenceChannel=null;
+  onlineUsers=new Set();
+}
+
+async function startPresence(){
+  stopPresence();
+
+  if(!user||!db)return;
+
+  presenceChannel=db.channel("Hangout-global-presence",{
+    config:{
+      presence:{key:user.id}
+    }
+  });
+
+  presenceChannel.on("presence",{event:"sync"},()=>{
+    const state=presenceChannel.presenceState();
+
+    onlineUsers=new Set(Object.keys(state));
+
+    refreshMemberStatuses();
+    renderAllMemberStatuses();
+  }).subscribe(async status=>{
+    if(status==="SUBSCRIBED"){
+      await presenceChannel.track({
+        user_id:user.id,
+        online_at:new Date().toISOString()
+      });
+    }
+  });
+
+  presenceRefreshTimer=setInterval(()=>{
+    refreshMemberStatuses();
+    renderAllMemberStatuses();
+  },15000);
+}
+
+async function renderAllMemberStatuses(){
+  const mine=$("myGroupStatuses");
+  if(!mine)return;
+
+  if(!$("groupsMinePanel")||
+     $("groupsMinePanel").classList.contains("hidden")){
+    mine.innerHTML="";
+    return;
+  }
+
+  const myJoinedGroups=groups.filter(g=>joined.has(g.id));
+
+  if(!myJoinedGroups.length){
+    mine.innerHTML=emptyMessage("Join a group to see its member status.");
+    return;
+  }
+
+  mine.innerHTML=myJoinedGroups.map(g=>`
+    <div class="panel">
+      <strong>${esc(gName(g))}</strong>
+      <div class="muted small">Member online status</div>
+      <div class="member-status" data-member-status="${esc(g.id)}"></div>
+    </div>
+  `).join("");
+
+  await refreshMemberStatuses();
+}
+
+async function refreshMemberStatuses(){
+  const containers=document.querySelectorAll("[data-member-status]");
+
+  for(const container of containers){
+    const groupId=container.dataset.memberStatus;
+
+    if(!groupId||!joined.has(groupId))continue;
+
+    try{
+      const {data,error}=await db.from("group_members")
+        .select("user_id")
+        .eq("group_id",groupId);
+
+      if(error)throw error;
+
+      const ids=[...new Set((data||[]).map(m=>m.user_id))];
+      let profilesById={};
+
+      if(ids.length){
+        const result=await db.from("profiles")
+          .select("id,display_name,avatar_url")
+          .in("id",ids);
+
+        (result.data||[]).forEach(p=>{
+          profilesById[p.id]=p;
+        });
+      }
+
+      const onlineCount=ids.filter(id=>onlineUsers.has(id)).length;
+
+      container.innerHTML=`
+        <strong>Group Members</strong>
+
+        <div class="small muted">
+          ${ids.length} members · ${onlineCount} online ·
+          ${Math.max(0,ids.length-onlineCount)} offline
+        </div>
+
+        <div class="member-list">
+          ${ids.map(id=>{
+            const p=profilesById[id]||{};
+            const online=onlineUsers.has(id);
+
+            return `
+              <span class="member-chip">
+                <span class="${online?"online-indicator":"offline-indicator"}"></span>
+                ${esc(p.display_name||"Hangout Member")}
+                ${id===user.id?" (you)":""}
+              </span>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+    }catch(error){
+      container.textContent=
+        "Member status unavailable. Check group_members and profiles read permissions.";
+    }
+  }
+}
+
+/* LOG OUT */
+async function logout(){
+  stopPresence();
+
+  if(chatChannel&&db){
+    await db.removeChannel(chatChannel);
+  }
+
+  chatChannel=null;
+
+  if(db)await db.auth.signOut();
+
+  user=null;
+  profile=null;
+  groups=[];
+  joined=new Set();
+  currentGroup=null;
+
+  $("main").classList.add("hidden");
+  $("header").classList.add("hidden");
+  $("auth").classList.remove("hidden");
+  $("accountMenu").classList.add("hidden");
+
+  clearFriendViews();
+  renderHomeGroups();
+  renderAllGroups();
+  renderMyGroups();
+  renderGroups();
+}
+
+/* INITIALIZATION */
+async function init(){
+  if(!configureSupabase())return;
+
+  try{
+    const {data,error}=await db.auth.getSession();
+
+    if(error)throw error;
+
+    if(data.session){
+      user=data.session.user;
+      await enterApp();
+    }
+  }catch(err){
+    message("authMessage",err.message,"error");
+  }
+
+  db.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_OUT")user=null;
+  });
+}
+
+/* Preserve browser interaction settings. */
+document.addEventListener("contextmenu",e=>{
+  if(!e.target.closest("input,textarea,select,[contenteditable='true']")){
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("copy",e=>{
+  if(!e.target.closest("input,textarea,[contenteditable='true']")){
+    e.preventDefault();
+
+    if(e.clipboardData){
+      e.clipboardData.setData("text/plain","");
+    }
+  }
+});
+
+document.addEventListener("selectstart",e=>{
+  if(!e.target.closest("input,textarea,select,[contenteditable='true']")){
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("keydown",e=>{
+  if(
+    (e.ctrlKey||e.metaKey)&&
+    ["c","x"].includes(e.key.toLowerCase())&&
+    !e.target.closest("input,textarea,select,[contenteditable='true']")
+  ){
+    e.preventDefault();
+  }
+});
+
+init();
+</script>
+</body>
+  </html>
